@@ -8,6 +8,7 @@ from .serializers import FileSerializer
 class FileUploadViewSet(viewsets.ViewSet):
 
     def create(self, request):
+        print('-------------- Тут -----------------------', request.FILES)
         serializer_class = FileSerializer(data=request.data)
         if 'file' not in request.FILES or not serializer_class.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
