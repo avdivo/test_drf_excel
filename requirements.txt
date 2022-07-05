@@ -1,0 +1,13 @@
+asgiref==3.5.2
+backports.zoneinfo==0.2.1
+Django==4.0.6
+djangorestframework==3.13.1
+et-xmlfile==1.1.0
+numpy==1.23.0
+openpyxl==3.0.10
+pandas==1.4.3
+python-dateutil==2.8.2
+pytz==2022.1
+six==1.16.0
+sqlparse==0.4.2
+xlrd==2.0.1

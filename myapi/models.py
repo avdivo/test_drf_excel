@@ -35,8 +35,9 @@ class Bill(models.Model):
     number = models.CharField(max_length=32, verbose_name=u'Номер счета')
     sum = models.IntegerField(default=0, verbose_name=u'Сумма')
     date = models.DateTimeField(blank=True, verbose_name=u'Дата создания')
-    service_class = models.IntegerField(blank=True, verbose_name=u'Номер')
+    service_class = models.IntegerField(blank=True, null=True, verbose_name=u'Номер')
     service_name = models.CharField(max_length=64, blank=True, verbose_name=u'Услуга')
+    fraud_score = models.FloatField(blank=False, default=0, verbose_name=u'Показатель мошеничества')
 
     def __str__(self):
         return self.number
@@ -44,3 +45,10 @@ class Bill(models.Model):
     class Meta:
         verbose_name = 'Счет'
         verbose_name_plural = 'Счета'
+
+    def save(self, *args, **kwargs):
+        '''Переопроеделение метода Save для рассчета суммы мошенничества'''
+        if self.fraud_score >= 0.9:
+            self.organization.fraud_weight += 1
+            self.organization.save()
+        super(Bill, self).save(*args, **kwargs)
