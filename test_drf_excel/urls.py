@@ -23,6 +23,7 @@ Including another URLconf
 from django.urls import include, path
 from rest_framework import routers
 from myapi import views
+from myapi.views import ClientAPIView, BillAPIView
 
 router = routers.DefaultRouter()
 router.register(r'file', views.FileUploadViewSet, basename='file')
@@ -30,4 +31,6 @@ router.register(r'file', views.FileUploadViewSet, basename='file')
 urlpatterns = [
     #path('admin/', admin.site.urls),
 	path('upload/', include(router.urls)),
+	path('api/v1/client', ClientAPIView.as_view()),
+	path('api/v1/bills', BillAPIView.as_view()),
 ]

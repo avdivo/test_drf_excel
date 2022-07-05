@@ -1,23 +1,24 @@
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework import generics
 from rest_framework.response import Response
 
 from detect_fraud import detect_fraud
 from service_classifier import service_classifier
 from .models import *
+from .serializers import FileSerializer, ClientSerializer, BillsSerializer
 
 import re
 import json
 import pandas
-import datetime as dt
 
-from .serializers import FileSerializer
 
 
 class FileUploadViewSet(viewsets.ViewSet):
+    """ Класс для загрузки файлов XLSX """
 
     def create(self, request):
-        print(request.POST)
+        print(request)
         serializer_class = FileSerializer(data=request.data)
         if 'file' not in request.FILES or not serializer_class.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -65,3 +66,30 @@ class FileUploadViewSet(viewsets.ViewSet):
 
             return Response(status=status.HTTP_201_CREATED)
 
+
+class ClientAPIView(generics.ListAPIView):
+    """ Информация о клиентах """
+
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+
+
+class BillAPIView(generics.ListAPIView):
+    """ Информация о клиентах """
+
+    def get(self, request):
+        client = organization = None
+        if 'client' in request.data:
+            client = Client.objects.get(name=request.data['client'])
+        if 'organization' in request.data:
+            organization = Organization.objects.get(name=request.data['organization'])
+        if client and organization:
+            bills = Bill.objects.filter(client__name=client, organization__name=organization)
+        elif client:
+            bills = Bill.objects.filter(client__name=client)
+        elif organization:
+            bills = Bill.objects.filter(organization__name=organization)
+        else:
+            bills = Bill.objects.all()
+            # return Response(['Client field is required.'], status=400)
+        return Response({'posts': BillsSerializer(bills, many=True).data})

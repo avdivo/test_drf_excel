@@ -47,7 +47,7 @@ class Bill(models.Model):
         verbose_name_plural = 'Счета'
 
     def save(self, *args, **kwargs):
-        '''Переопроеделение метода Save для рассчета суммы мошенничества'''
+        """ Переопроеделение метода Save для рассчета суммы мошенничества """
         if self.fraud_score >= 0.9:
             self.organization.fraud_weight += 1
             self.organization.save()
