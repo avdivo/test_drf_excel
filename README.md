@@ -2,3 +2,6 @@
 
 key - file, value - файл
 
+первым client_org.xlsx, затем bills.xlsx
+
+Данные записываются в таблицы БД Client, Organization и bill
