@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from myapi.models import Client, Bill
 
+from django.db.models import Sum
+
 
 class FileSerializer(serializers.Serializer):
     """ Проверка загружаемого файла """
@@ -11,10 +13,18 @@ class FileSerializer(serializers.Serializer):
 
 class ClientSerializer(serializers.ModelSerializer):
     """ Получение информации о клиенте """
+    number_of_organization = serializers.SerializerMethodField()
+    sum_all = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
-        fields = ['name']
+        exclude = ['id']
+
+    def get_number_of_organization(self, obj):
+        return Bill.objects.filter(client=obj).count()
+
+    def get_sum_all(self, obj):
+        return Bill.objects.filter(client=obj).aggregate(sum=Sum('sum'))['sum']
 
 
 class BillsSerializer(serializers.Serializer):
@@ -23,7 +33,6 @@ class BillsSerializer(serializers.Serializer):
     # class Meta:
     #     model = Bill
     #     fields = ['client__name']
-
 
     client = serializers.CharField()
     organization = serializers.CharField()
