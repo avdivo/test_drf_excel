@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from myapi.models import Client
+from myapi.models import Client, Bill
 
 
 class FileSerializer(serializers.Serializer):
@@ -20,6 +20,11 @@ class ClientSerializer(serializers.ModelSerializer):
 class BillsSerializer(serializers.Serializer):
     """ Получение информации о Счетах """
 
+    # class Meta:
+    #     model = Bill
+    #     fields = ['client__name']
+
+
     client = serializers.CharField()
     organization = serializers.CharField()
     number = serializers.CharField()
@@ -28,4 +33,3 @@ class BillsSerializer(serializers.Serializer):
     service_class = serializers.IntegerField()
     service_name = serializers.CharField()
     fraud_score = serializers.FloatField()
-

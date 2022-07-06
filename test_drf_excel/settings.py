@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'myapi.apps.MyapiConfig',
+    'django_filters',
 ]
 
 # Application definition

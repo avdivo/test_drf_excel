@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework import generics
@@ -11,7 +12,6 @@ from .serializers import FileSerializer, ClientSerializer, BillsSerializer
 import re
 import json
 import pandas
-
 
 
 class FileUploadViewSet(viewsets.ViewSet):
@@ -76,20 +76,7 @@ class ClientAPIView(generics.ListAPIView):
 
 class BillAPIView(generics.ListAPIView):
     """ Информация о клиентах """
-
-    def get(self, request):
-        client = organization = None
-        if 'client' in request.data:
-            client = Client.objects.get(name=request.data['client'])
-        if 'organization' in request.data:
-            organization = Organization.objects.get(name=request.data['organization'])
-        if client and organization:
-            bills = Bill.objects.filter(client__name=client, organization__name=organization)
-        elif client:
-            bills = Bill.objects.filter(client__name=client)
-        elif organization:
-            bills = Bill.objects.filter(organization__name=organization)
-        else:
-            bills = Bill.objects.all()
-            # return Response(['Client field is required.'], status=400)
-        return Response({'posts': BillsSerializer(bills, many=True).data})
+    queryset = Bill.objects.all()
+    serializer_class = BillsSerializer
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_fields = ['client__name', 'organization__name']
