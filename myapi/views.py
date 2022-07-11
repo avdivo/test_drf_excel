@@ -1,13 +1,16 @@
+from django.http import QueryDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework import generics
+from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from detect_fraud import detect_fraud
 from service_classifier import service_classifier
 from .models import *
-from .serializers import FileSerializer, ClientSerializer, BillsSerializer
+from .serializers import *
 
 import re
 import json
@@ -80,3 +83,39 @@ class BillAPIView(generics.ListAPIView):
     serializer_class = BillsSerializer
     filter_backends = [DjangoFilterBackend, ]
     filterset_fields = ['client__name', 'organization__name']
+
+
+
+
+
+# ----------------------------------------------------------
+
+class PlainTextParser(MultiPartParser):
+    """
+    Plain text parser.
+    """
+    media_type = 'multipart/form-data'
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        """
+        Simply return a string representing the body of the request.
+        """
+        result = super().parse(
+            stream,
+            media_type=media_type,
+            parser_context=parser_context
+        )
+        if result.files['file'].content_type == 'text/plain':
+            ret_dict = result.data.copy()
+            ret_dict.__setitem__('text', result.files['file'].read())
+        return ret_dict
+
+
+
+class TextAPIView(generics.CreateAPIView):
+    """ Загрузка текстового файла и вывод егона экран """
+    parser_classes = (PlainTextParser,)
+    serializer_class = TextSerializer
+
+    def create(self, request):
+        return Response(request.data)

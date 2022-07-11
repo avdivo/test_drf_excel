@@ -42,3 +42,14 @@ class BillsSerializer(serializers.Serializer):
     service_class = serializers.IntegerField()
     service_name = serializers.CharField()
     fraud_score = serializers.FloatField()
+
+
+
+# ---------------------------------------------------------------
+class TextSerializer(serializers.Serializer):
+    """ --- """
+    # field1 = serializers.CharField()
+    # field2 = serializers.CharField()
+    # text = serializers.CharField()
+
+    pass
