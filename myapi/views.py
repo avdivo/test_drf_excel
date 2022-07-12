@@ -105,17 +105,22 @@ class PlainTextParser(MultiPartParser):
             media_type=media_type,
             parser_context=parser_context
         )
-        if result.files['file'].content_type == 'text/plain':
-            ret_dict = result.data.copy()
-            ret_dict.__setitem__('text', result.files['file'].read())
-        return ret_dict
+        if 'file' in result.files:
+            if result.files['file'].content_type == 'text/plain':
+                ret_dict = result.data.copy()
+                ret_dict.__setitem__('text', result.files['file'].read())
+            return ret_dict
 
 
 
 class TextAPIView(generics.CreateAPIView):
     """ Загрузка текстового файла и вывод егона экран """
     parser_classes = (PlainTextParser,)
-    serializer_class = TextSerializer
+    # serializer_class = TextSerializer
 
     def create(self, request):
-        return Response(request.data)
+        serializer = TextSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data)
+        else:
+            return Response(serializer.error_messages)
