@@ -51,3 +51,6 @@ class TextSerializer(serializers.Serializer):
     field1 = serializers.CharField()
     field2 = serializers.CharField()
     text = serializers.CharField()
+
+    def create(self, validated_data):
+        return validated_data

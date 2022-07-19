@@ -78,7 +78,7 @@ class ClientAPIView(generics.ListAPIView):
 
 
 class BillAPIView(generics.ListAPIView):
-    """ Информация о клиентах """
+    """ Информация о счетах """
     queryset = Bill.objects.all()
     serializer_class = BillsSerializer
     filter_backends = [DjangoFilterBackend, ]
@@ -114,13 +114,13 @@ class PlainTextParser(MultiPartParser):
 
 
 class TextAPIView(generics.CreateAPIView):
-    """ Загрузка текстового файла и вывод егона экран """
+    """ Загрузка текстового файла и возврат его """
     parser_classes = (PlainTextParser,)
-    # serializer_class = TextSerializer
+    serializer_class = TextSerializer
 
-    def create(self, request):
-        serializer = TextSerializer(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.validated_data)
-        else:
-            return Response(serializer.error_messages)
+    # def create(self, request):
+    #     serializer = TextSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         return Response(serializer.validated_data)
+    #     else:
+    #         return Response(serializer.error_messages)
