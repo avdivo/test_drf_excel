@@ -47,10 +47,19 @@ class BillsSerializer(serializers.Serializer):
 
 # ---------------------------------------------------------------
 class TextSerializer(serializers.Serializer):
-    """ --- """
+    """ Проверка 3 текстовых полей """
     field1 = serializers.CharField()
     field2 = serializers.CharField()
     text = serializers.CharField()
 
     def create(self, validated_data):
+        print(validated_data)
+        return validated_data
+
+
+# ---------------------------------------------------------------
+class ExcelSerializer(serializers.Serializer):
+
+    def create(self, validated_data):
+        print(validated_data)
         return validated_data

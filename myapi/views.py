@@ -5,7 +5,6 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from detect_fraud import detect_fraud
 from service_classifier import service_classifier
@@ -124,3 +123,42 @@ class TextAPIView(generics.CreateAPIView):
     #         return Response(serializer.validated_data)
     #     else:
     #         return Response(serializer.error_messages)
+
+
+
+# ----------------------------------------------------------
+
+class XlsxParser(MultiPartParser):
+    """
+    Парсер Excel файла
+    """
+    media_type = 'multipart/form-data'
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        """
+        Simply return a string representing the body of the request.
+        """
+        result = super().parse(
+            stream,
+            media_type=media_type,
+            parser_context=parser_context
+        )
+
+        if 'file' in result.files:
+            if result.files['file'].content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                print('------------')
+                lists = pandas.ExcelFile(result.files['file']).sheet_names
+                for name_list in lists:
+                    excel_data_df = pandas.read_excel(result.files['file'], sheet_name=name_list).to_dict('list')
+                print(excel_data_df, '-----------------------------------------------')
+                clients = json.loads(excel_data_df.to_json())
+                print(clients)
+                # ret_dict = result.data.copy()
+                # ret_dict.__setitem__('text', result.files['file'].read())
+            # return ret_dict
+
+
+class ExcelAPIView(generics.CreateAPIView):
+    """ Загрузка EXSX файла """
+    parser_classes = (XlsxParser,)
+    # serializer_class = ExcelSerializer
