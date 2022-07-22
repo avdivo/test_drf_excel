@@ -136,7 +136,14 @@ class XlsxParser(MultiPartParser):
 
     def parse(self, stream, media_type=None, parser_context=None):
         """
-        Simply return a string representing the body of the request.
+        На вход принимает любое количество файлов в формате XLSX в параметре 'files'.
+        На выходе пары словаря вида:
+         'doc1':
+            {list1:
+                {column1: [list]
+                },
+            },
+        добавляются в request.data и он возвращается
         """
         result = super().parse(
             stream,
@@ -144,21 +151,33 @@ class XlsxParser(MultiPartParser):
             parser_context=parser_context
         )
 
-        if 'file' in result.files:
-            if result.files['file'].content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-                print('------------')
-                lists = pandas.ExcelFile(result.files['file']).sheet_names
-                for name_list in lists:
-                    excel_data_df = pandas.read_excel(result.files['file'], sheet_name=name_list).to_dict('list')
-                print(excel_data_df, '-----------------------------------------------')
-                clients = json.loads(excel_data_df.to_json())
-                print(clients)
-                # ret_dict = result.data.copy()
-                # ret_dict.__setitem__('text', result.files['file'].read())
-            # return ret_dict
+        if 'files' in result.files:
+            # Перебираем все полученные файлы
+            ret_dict = result.data.copy() # request.data
+            for file in dict(result.files)['files']:
+                if file.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                    list_dict = {} # в словать записываем листы докумена с волженным словарем со столбцами
+                    lists = pandas.ExcelFile(file).sheet_names
+                    # Перебираем список слистов документа, получаем словарь с ключами - колонками и данными списком
+                    for name_list in lists:
+                        one_list = pandas.read_excel(file, sheet_name=name_list).to_dict('list')
+                        list_dict[name_list] = one_list # Добавляем словарь столбец: список ячеек (данные)
+                    ret_dict.__setitem__(file.name, list_dict)
+
+                    # print(list_dict, '-----------------------------------------------')
+
+                else:
+                    return
+
+            return ret_dict
 
 
 class ExcelAPIView(generics.CreateAPIView):
     """ Загрузка EXSX файла """
     parser_classes = (XlsxParser,)
     # serializer_class = ExcelSerializer
+
+    def post(self, request):
+        print(request.data)
+        return Response(request.data)
+        # return Response({'title': 'Jennifer Shrader Lawrence'})
