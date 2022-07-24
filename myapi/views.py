@@ -126,7 +126,7 @@ class TextAPIView(generics.CreateAPIView):
 
 
 
-# ----------------------------------------------------------
+# --------------------------- Работа с Excel файлами -------------------------------
 
 class XlsxParser(MultiPartParser):
     """
@@ -162,7 +162,7 @@ class XlsxParser(MultiPartParser):
                     for name_list in lists:
                         one_list = pandas.read_excel(file, sheet_name=name_list).to_dict('list')
                         list_dict[name_list] = one_list # Добавляем словарь столбец: список ячеек (данные)
-                    ret_dict.__setitem__(file.name, list_dict)
+                    ret_dict.__setitem__(file.name[:-5], list_dict)
 
                     # print(list_dict, '-----------------------------------------------')
 
@@ -173,11 +173,28 @@ class XlsxParser(MultiPartParser):
 
 
 class ExcelAPIView(generics.CreateAPIView):
-    """ Загрузка EXSX файла """
+    """ Загрузка XLSX файлов и вывод их содержимого """
     parser_classes = (XlsxParser,)
     # serializer_class = ExcelSerializer
 
     def post(self, request):
         print(request.data)
         return Response(request.data)
-        # return Response({'title': 'Jennifer Shrader Lawrence'})
+
+
+class ExcelToDbAPIView(generics.CreateAPIView):
+    """ Загрузка 2 XLSX файлов, парсинг и
+    запись их содержимого в заранее подготовленную базу данных """
+    parser_classes = (XlsxParser,)
+    # queryset = Client.objects.all()
+    # serializer_class = ExcelToDbClientSerializer
+
+    def post(self, request):
+        if 'client_org' in request.data and 'bills' in request.data:
+            serializer = ExcelToDbClientSerializer(data=request.data['client_org']['client'])
+            # print(request.data['client_org']['client'])
+            if serializer.is_valid(raise_exception=True):
+                out = serializer.save()
+
+        return Response(out)
+

@@ -52,3 +52,5 @@ class Bill(models.Model):
             self.organization.fraud_weight += 1
             self.organization.save()
         super(Bill, self).save(*args, **kwargs)
+
+

@@ -58,7 +58,11 @@ class TextSerializer(serializers.Serializer):
 
 
 # ---------------------------------------------------------------
-class ExcelSerializer(serializers.Serializer):
+
+class ExcelToDbClientSerializer(serializers.Serializer):
+
+    name = serializers.ListField(child=serializers.CharField())
+
 
     def create(self, validated_data):
         print(validated_data)

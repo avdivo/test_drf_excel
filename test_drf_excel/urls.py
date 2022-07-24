@@ -23,7 +23,7 @@ Including another URLconf
 from django.urls import include, path
 from rest_framework import routers
 from myapi import views
-from myapi.views import ClientAPIView, BillAPIView, TextAPIView, ExcelAPIView
+from myapi.views import ClientAPIView, BillAPIView, TextAPIView, ExcelAPIView, ExcelToDbAPIView
 from django.contrib import admin
 
 router = routers.DefaultRouter()
@@ -36,6 +36,7 @@ urlpatterns = [
 	path('api/v1/client', ClientAPIView.as_view()),
 	path('api/v1/bills', BillAPIView.as_view()),
 	path('api/v1/text', TextAPIView.as_view()),
-	path('api/v1/excel', ExcelAPIView.as_view())
+	path('api/v1/excel', ExcelAPIView.as_view()),
+	path('api/v1/excel_two', ExcelToDbAPIView.as_view()),
 
 ]
